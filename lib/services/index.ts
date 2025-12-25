@@ -5,3 +5,4 @@ export { checkDKIM, extractDKIMSelector, getDKIMStatusDescription } from './dkim
 export { checkDMARC, parseDMARCRecord, getDMARCStatusDescription } from './dmarc-checker';
 export { runDNSChecks, checkLookalikeDomain, findSimilarDomain } from './dns-service';
 export { calculateRiskScore, generateExplanation, buildAnalysisResult } from './risk-scorer';
+export { analyzeContent, isAIEnabled } from './ai-analyzer';
