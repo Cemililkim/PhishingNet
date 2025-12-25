@@ -6,6 +6,8 @@ import {
     runDNSChecks,
     buildAnalysisResult,
 } from '@/lib/services';
+import { createClient } from '@/lib/supabase/server';
+import { saveScan } from '@/lib/data/scans';
 import type { ApiResponse, AnalysisResult } from '@/lib/types';
 
 // Request validation schema
@@ -62,6 +64,18 @@ export async function POST(request: NextRequest) {
             dnsResult.checks,
             dnsResult.domainInfo
         );
+
+        // Save to history if user is authenticated
+        try {
+            const supabase = await createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await saveScan(result);
+            }
+        } catch {
+            // Silently fail - scan saving is optional
+            console.warn('Could not save scan to history');
+        }
 
         const response: ApiResponse<AnalysisResult> = {
             status: 'success',

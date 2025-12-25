@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -17,6 +17,7 @@ import {
   Github,
   Twitter,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 type Tab = 'paste' | 'upload';
 
@@ -28,6 +29,17 @@ export default function LandingPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check auth state on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+    };
+    checkAuth();
+  }, []);
 
   const handleScan = async () => {
     setError('');
@@ -116,8 +128,8 @@ export default function LandingPage() {
                 <ExternalLink className="h-4 w-4" />
               </Link>
             </div>
-            <button className="bg-[#6467f2] hover:bg-[#5356db] text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors shadow-sm shadow-[#6467f2]/30">
-              Login
+            <button onClick={() => router.push(isLoggedIn ? '/dashboard' : '/auth/login')} className="hover:cursor-pointer bg-[#6467f2] hover:bg-[#5356db] text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors shadow-sm shadow-[#6467f2]/30">
+              {isLoggedIn ? 'Dashboard' : 'Login'}
             </button>
           </div>
 
@@ -134,7 +146,7 @@ export default function LandingPage() {
             <Link href="/api/analyze/email" className="block text-gray-600 py-2">API</Link>
             <Link href="#" className="block text-gray-600 py-2">Docs</Link>
             <Link href="https://github.com" className="block text-gray-600 py-2">GitHub</Link>
-            <button className="w-full bg-[#6467f2] text-white font-bold py-2.5 rounded-lg">Login</button>
+            <button onClick={() => router.push(isLoggedIn ? '/dashboard' : '/auth/login')} className="w-full bg-[#6467f2] text-white font-bold py-2.5 rounded-lg">{isLoggedIn ? 'Dashboard' : 'Login'}</button>
           </div>
         )}
       </nav>
@@ -173,8 +185,8 @@ export default function LandingPage() {
                 <button
                   onClick={() => setActiveTab('paste')}
                   className={`flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'paste'
-                      ? 'border-[#6467f2] text-[#6467f2] bg-white'
-                      : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'border-[#6467f2] text-[#6467f2] bg-white'
+                    : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   Paste Text / Headers
@@ -182,8 +194,8 @@ export default function LandingPage() {
                 <button
                   onClick={() => setActiveTab('upload')}
                   className={`flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'upload'
-                      ? 'border-[#6467f2] text-[#6467f2] bg-white'
-                      : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'border-[#6467f2] text-[#6467f2] bg-white'
+                    : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   Upload .eml File
@@ -319,8 +331,8 @@ export default function LandingPage() {
                   className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow group"
                 >
                   <div className={`size-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                      color === 'purple' ? 'bg-purple-100 text-[#6467f2]' :
-                        'bg-teal-100 text-teal-600'
+                    color === 'purple' ? 'bg-purple-100 text-[#6467f2]' :
+                      'bg-teal-100 text-teal-600'
                     }`}>
                     <Icon className="h-6 w-6" />
                   </div>
